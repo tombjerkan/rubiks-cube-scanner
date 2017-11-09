@@ -6,13 +6,16 @@ def scan_cube(
         cubeImage,
         edgeImageFile=None,
         linesImageFile=None,
-        orthogonalLinesImageFile=None):
+        orthogonalLinesImageFile=None,
+        combinedLinesImageFile=None):
     """Scan the given cube image and return the colours of the cube face.
 
     Returns None if cube face could not be scanned.
     Saves the intermediate edge image generated to the filename given.
     Saves the intermediate lines image generated to the filename given.
     Saves the intermediate orthogonal lines image generated to the filename
+    given.
+    Saves the intermediate combined lines image generated to the filename
     given.
     """
     edgeImage = _detect_edges(cubeImage)
@@ -28,6 +31,11 @@ def scan_cube(
     if orthogonalLinesImageFile is not None:
         orthogonalLinesImage = _draw_lines(cubeImage, orthogonalLines)
         cv2.imwrite(orthogonalLinesImageFile, orthogonalLinesImage)
+
+    combinedLines = _combine_lines(orthogonalLines)
+    if combinedLinesImageFile is not None:
+        combinedLinesImage = _draw_lines(cubeImage, combinedLines)
+        cv2.imwrite(combinedLinesImageFile, combinedLinesImage)
 
     return None
 
@@ -46,6 +54,14 @@ def _detect_lines(edgeImage, threshold=125):
     lines = cv2.HoughLines(edgeImage, 1, np.pi/180, threshold)
     # Change line representation from [(rho, theta)] to just (rho, theta)
     lines = [line[0] for line in lines]
+
+    # Stop rho from wrapping round from positive to negative and theta from
+    # wrapping round from pi to 0. This ensures similar lines have similar
+    # values when compared.
+    lines = [
+        (rho, theta) if rho >= 0 else (-rho, theta - np.pi)
+        for (rho, theta) in lines
+    ]
 
     return lines
 
@@ -78,7 +94,7 @@ def _is_horizontal(line):
 def _is_vertical(line):
     """Returns True if line is within 1/36pi of vertical."""
     _, theta = line
-    return theta > np.pi*35/36 and theta < np.pi/36
+    return theta > -np.pi/36 and theta < np.pi/36
 
 
 def _horizontal_and_vertical_lines(lines):
@@ -87,3 +103,42 @@ def _horizontal_and_vertical_lines(lines):
         line for line in lines
         if _is_horizontal(line) or _is_vertical(line)
     ]
+
+
+def _similar(line1, line2, rhoThreshold=50, thetaThreshold=np.pi/18):
+    """Returns True if the two lines are similar enough, False otherwise."""
+    rho1, theta1 = line1
+    rho2, theta2 = line2
+
+    if abs(rho1 - rho2) > rhoThreshold:
+        return False
+
+    if abs(theta1 - theta2) > thetaThreshold:
+        return False
+
+    return True
+
+
+def _average_line(lines):
+    """Combines a group of lines and returns their average."""
+    averageRho = sum(rho for rho, _ in lines) / len(lines)
+    averageTheta = sum(theta for _, theta in lines) / len(lines)
+    return averageRho, averageTheta
+
+
+def _combine_lines(lines):
+    """Combines lines that are similar to one another."""
+    similarLineGroups = [
+        # Convert to tuple to be hashable for set below
+        tuple([line for line in lines if _similar(line, originalLine)])
+        for originalLine in lines
+    ]
+
+    uniqueSimilarLineGroups = set(similarLineGroups)
+
+    combinedLines = {
+        _average_line(similarLines)
+        for similarLines in uniqueSimilarLineGroups
+    }
+
+    return combinedLines
