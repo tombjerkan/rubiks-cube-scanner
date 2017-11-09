@@ -49,10 +49,7 @@ def scan_cube(
 
     centrePoints = _find_centres(centreLines)
     if centrePointsImageFile is not None:
-        centrePointsImage = _draw_points(cubeImage, [
-            point for centrePointGroup in centrePoints
-            for point in centrePointGroup
-        ])
+        centrePointsImage = _draw_points(cubeImage, centrePoints)
         cv2.imwrite(centrePointsImageFile, centrePointsImage)
 
     return None
@@ -237,9 +234,9 @@ def _find_centres(centreLines):
     bottomRightCentre = _intersection(horizontalLines[2], verticalLines[2])
 
     return (
-        (topLeftCentre, topMiddleCentre, topRightCentre),
-        (middleLeftCentre, middleCentre, middleRightCentre),
-        (bottomLeftCentre, bottomMiddleCentre, bottomRightCentre)
+        topLeftCentre, topMiddleCentre, topRightCentre,
+        middleLeftCentre, middleCentre, middleRightCentre,
+        bottomLeftCentre, bottomMiddleCentre, bottomRightCentre
     )
 
 
