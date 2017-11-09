@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import math
 
 
 def scan_cube(
@@ -8,7 +9,8 @@ def scan_cube(
         linesImageFile=None,
         orthogonalLinesImageFile=None,
         combinedLinesImageFile=None,
-        centreLinesImageFile=None):
+        centreLinesImageFile=None,
+        centrePointsImageFile=None):
     """Scan the given cube image and return the colours of the cube face.
 
     Returns None if cube face could not be scanned.
@@ -44,6 +46,14 @@ def scan_cube(
             line for centreLineGroup in centreLines for line in centreLineGroup
         ])
         cv2.imwrite(centreLinesImageFile, centreLinesImage)
+
+    centrePoints = _find_centres(centreLines)
+    if centrePointsImageFile is not None:
+        centrePointsImage = _draw_points(cubeImage, [
+            point for centrePointGroup in centrePoints
+            for point in centrePointGroup
+        ])
+        cv2.imwrite(centrePointsImageFile, centrePointsImage)
 
     return None
 
@@ -187,3 +197,56 @@ def _find_centre_lines(lines):
         (topCentreHorizontal, middleCentreHorizontal, bottomCentreHorizontal),
         (leftCentreVertical, middleCentreVertical, rightCentreVertical)
     )
+
+
+def _intersection(line1, line2):
+    """Finds the (x, y) point where two lines intersect."""
+    rho1, theta1 = line1
+    rho2, theta2 = line2
+
+    cosTheta1 = math.cos(theta1)
+    sinTheta1 = math.sin(theta1)
+    cosTheta2 = math.cos(theta2)
+    sinTheta2 = math.sin(theta2)
+
+    det = cosTheta1*sinTheta2 - sinTheta1*cosTheta2
+
+    # det is None when lines are parallel
+    if det is None:
+        return None
+
+    x = (sinTheta2*rho1 - sinTheta1*rho2) / det
+    y = (cosTheta1*rho2 - cosTheta2*rho1) / det
+
+    return (x, y)
+
+
+def _find_centres(centreLines):
+    horizontalLines, verticalLines = centreLines
+
+    topLeftCentre = _intersection(horizontalLines[0], verticalLines[0])
+    topMiddleCentre = _intersection(horizontalLines[0], verticalLines[1])
+    topRightCentre = _intersection(horizontalLines[0], verticalLines[2])
+
+    middleLeftCentre = _intersection(horizontalLines[1], verticalLines[0])
+    middleCentre = _intersection(horizontalLines[1], verticalLines[1])
+    middleRightCentre = _intersection(horizontalLines[1], verticalLines[2])
+
+    bottomLeftCentre = _intersection(horizontalLines[2], verticalLines[0])
+    bottomMiddleCentre = _intersection(horizontalLines[2], verticalLines[1])
+    bottomRightCentre = _intersection(horizontalLines[2], verticalLines[2])
+
+    return (
+        (topLeftCentre, topMiddleCentre, topRightCentre),
+        (middleLeftCentre, middleCentre, middleRightCentre),
+        (bottomLeftCentre, bottomMiddleCentre, bottomRightCentre)
+    )
+
+
+def _draw_points(image, points):
+    """Returns a copy of the image with the given points drawn on."""
+    imageCopy = image.copy()
+    for x, y in points:
+        cv2.circle(imageCopy, (int(x), int(y)), 3, (255, 0, 255), -1)
+
+    return imageCopy
