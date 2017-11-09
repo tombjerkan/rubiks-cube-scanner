@@ -7,7 +7,8 @@ def scan_cube(
         edgeImageFile=None,
         linesImageFile=None,
         orthogonalLinesImageFile=None,
-        combinedLinesImageFile=None):
+        combinedLinesImageFile=None,
+        centreLinesImageFile=None):
     """Scan the given cube image and return the colours of the cube face.
 
     Returns None if cube face could not be scanned.
@@ -36,6 +37,13 @@ def scan_cube(
     if combinedLinesImageFile is not None:
         combinedLinesImage = _draw_lines(cubeImage, combinedLines)
         cv2.imwrite(combinedLinesImageFile, combinedLinesImage)
+
+    centreLines = _find_centre_lines(combinedLines)
+    if centreLinesImageFile is not None:
+        centreLinesImage = _draw_lines(cubeImage, [
+            line for centreLineGroup in centreLines for line in centreLineGroup
+        ])
+        cv2.imwrite(centreLinesImageFile, centreLinesImage)
 
     return None
 
@@ -142,3 +150,40 @@ def _combine_lines(lines):
     }
 
     return combinedLines
+
+
+def _identify_horizontal_lines(lines):
+    """Identifies the horizontal lines and returns them from top to bottom."""
+    horizontalLines = [line for line in lines if _is_horizontal(line)]
+    # Rho shows how far away from origin therefore position in top to bottom
+    horizontalLines.sort(key=lambda line: line[0])
+    return tuple(horizontalLines)
+
+
+def _identify_vertical_lines(lines):
+    """Identifies the vertical lines and returns them from left to right."""
+    verticalLines = [line for line in lines if _is_vertical(line)]
+    # Rho shows how far away from origin therefore position in left to right
+    verticalLines.sort(key=lambda line: line[0])
+    return tuple(verticalLines)
+
+
+def _find_centre_lines(lines):
+    """Finds the lines passing through the centre of each square"""
+    # Number identifies position from 1 to 4 in top to bottom ordering
+    hor1, hor2, hor3, hor4 = _identify_horizontal_lines(lines)
+    # Number identifies position from 1 to 4 in left to right ordering
+    vert1, vert2, vert3, vert4 = _identify_vertical_lines(lines)
+
+    topCentreHorizontal = _average_line([hor1, hor2])
+    middleCentreHorizontal = _average_line([hor2, hor3])
+    bottomCentreHorizontal = _average_line([hor3, hor4])
+
+    leftCentreVertical = _average_line([vert1, vert2])
+    middleCentreVertical = _average_line([vert2, vert3])
+    rightCentreVertical = _average_line([vert3, vert4])
+
+    return (
+        (topCentreHorizontal, middleCentreHorizontal, bottomCentreHorizontal),
+        (leftCentreVertical, middleCentreVertical, rightCentreVertical)
+    )
