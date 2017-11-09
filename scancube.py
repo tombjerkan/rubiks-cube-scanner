@@ -52,7 +52,9 @@ def scan_cube(
         centrePointsImage = _draw_points(cubeImage, centrePoints)
         cv2.imwrite(centrePointsImageFile, centrePointsImage)
 
-    return None
+    squareColours = _square_colours(cubeImage, centrePoints)
+
+    return squareColours
 
 
 def _detect_edges(image):
@@ -247,3 +249,39 @@ def _draw_points(image, points):
         cv2.circle(imageCopy, (int(x), int(y)), 3, (255, 0, 255), -1)
 
     return imageCopy
+
+
+def _colours_around_centre(image, centrePoint, offset):
+    """Returns a list of colours in a square around a centre point"""
+    centreX, centreY = centrePoint
+    leftX = int(centreX) - offset
+    rightX = int(centreX) + offset
+    topY = int(centreY) - offset
+    bottomY = int(centreY) + offset
+
+    pixelColours = [
+        image[y][x]
+        for x in range(leftX, rightX + 1)
+        for y in range(topY, bottomY + 1)
+    ]
+
+    return pixelColours
+
+
+def _average_colour(colours):
+    """Find the average of a list of colours."""
+    bAverage = math.sqrt(sum(b**2 for b, _, _ in colours) / len(colours))
+    gAverage = math.sqrt(sum(g**2 for _, g, _ in colours) / len(colours))
+    rAverage = math.sqrt(sum(r**2 for _, _, r in colours) / len(colours))
+
+    return (bAverage, gAverage, rAverage)
+
+
+def _square_colours(image, centrePoints, offset=20):
+    """Finds colour of each square using square around its centre point."""
+    squareColours = tuple(
+        _average_colour(_colours_around_centre(image, centrePoint, offset))
+        for centrePoint in centrePoints
+    )
+
+    return squareColours
