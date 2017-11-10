@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import math
+import enum
 
 
 def scan_cube(
@@ -305,15 +306,24 @@ def _colour_similarity(colour1, colour2):
     return similarity
 
 
+class RubiksColour(enum.Enum):
+    WHITE = 1,
+    GREEN = 2,
+    RED = 3,
+    BLUE = 4,
+    ORANGE = 5,
+    YELLOW = 6
+
+
 def _to_rubiks_colour(colour):
     """Returns the nearest rubiks cube colour to the given colour."""
     rubiksColours = [
-        ("white", (255., 255., 255.)),
-        ("green", (72., 155., 0.)),
-        ("red", (52., 18., 183.)),
-        ("blue", (173., 70., 0.)),
-        ("orange", (0., 88., 255.)),
-        ("yellow", (0., 213., 255.))
+        (RubiksColour.WHITE, (255., 255., 255.)),
+        (RubiksColour.GREEN, (72., 155., 0.)),
+        (RubiksColour.RED, (52., 18., 183.)),
+        (RubiksColour.BLUE, (173., 70., 0.)),
+        (RubiksColour.ORANGE, (0., 88., 255.)),
+        (RubiksColour.YELLOW, (0., 213., 255.))
     ]
 
     similarities = [
