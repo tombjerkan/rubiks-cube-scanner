@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import math
 
 
 def scan_cube(
@@ -8,7 +9,8 @@ def scan_cube(
         linesImageFile=None,
         orthogonalLinesImageFile=None,
         combinedLinesImageFile=None,
-        centreLinesImageFile=None):
+        centreLinesImageFile=None,
+        centrePointsImageFile=None):
     """Scan the given cube image and return the colours of the cube face.
 
     Returns None if cube face could not be scanned.
@@ -45,7 +47,15 @@ def scan_cube(
         ])
         cv2.imwrite(centreLinesImageFile, centreLinesImage)
 
-    return None
+    centrePoints = _find_centres(centreLines)
+    if centrePointsImageFile is not None:
+        centrePointsImage = _draw_points(cubeImage, centrePoints)
+        cv2.imwrite(centrePointsImageFile, centrePointsImage)
+
+    squareColours = _square_colours(cubeImage, centrePoints)
+    rubiksColours = [_to_rubiks_colour(colour) for colour in squareColours]
+
+    return rubiksColours
 
 
 def _detect_edges(image):
@@ -187,3 +197,130 @@ def _find_centre_lines(lines):
         (topCentreHorizontal, middleCentreHorizontal, bottomCentreHorizontal),
         (leftCentreVertical, middleCentreVertical, rightCentreVertical)
     )
+
+
+def _intersection(line1, line2):
+    """Finds the (x, y) point where two lines intersect."""
+    rho1, theta1 = line1
+    rho2, theta2 = line2
+
+    cosTheta1 = math.cos(theta1)
+    sinTheta1 = math.sin(theta1)
+    cosTheta2 = math.cos(theta2)
+    sinTheta2 = math.sin(theta2)
+
+    det = cosTheta1*sinTheta2 - sinTheta1*cosTheta2
+
+    # det is None when lines are parallel
+    if det is None:
+        return None
+
+    x = (sinTheta2*rho1 - sinTheta1*rho2) / det
+    y = (cosTheta1*rho2 - cosTheta2*rho1) / det
+
+    return (x, y)
+
+
+def _find_centres(centreLines):
+    horizontalLines, verticalLines = centreLines
+
+    topLeftCentre = _intersection(horizontalLines[0], verticalLines[0])
+    topMiddleCentre = _intersection(horizontalLines[0], verticalLines[1])
+    topRightCentre = _intersection(horizontalLines[0], verticalLines[2])
+
+    middleLeftCentre = _intersection(horizontalLines[1], verticalLines[0])
+    middleCentre = _intersection(horizontalLines[1], verticalLines[1])
+    middleRightCentre = _intersection(horizontalLines[1], verticalLines[2])
+
+    bottomLeftCentre = _intersection(horizontalLines[2], verticalLines[0])
+    bottomMiddleCentre = _intersection(horizontalLines[2], verticalLines[1])
+    bottomRightCentre = _intersection(horizontalLines[2], verticalLines[2])
+
+    return (
+        topLeftCentre, topMiddleCentre, topRightCentre,
+        middleLeftCentre, middleCentre, middleRightCentre,
+        bottomLeftCentre, bottomMiddleCentre, bottomRightCentre
+    )
+
+
+def _draw_points(image, points):
+    """Returns a copy of the image with the given points drawn on."""
+    imageCopy = image.copy()
+    for x, y in points:
+        cv2.circle(imageCopy, (int(x), int(y)), 3, (255, 0, 255), -1)
+
+    return imageCopy
+
+
+def _colours_around_centre(image, centrePoint, offset):
+    """Returns a list of colours in a square around a centre point"""
+    centreX, centreY = centrePoint
+    leftX = int(centreX) - offset
+    rightX = int(centreX) + offset
+    topY = int(centreY) - offset
+    bottomY = int(centreY) + offset
+
+    pixelColours = [
+        image[y][x]
+        for x in range(leftX, rightX + 1)
+        for y in range(topY, bottomY + 1)
+    ]
+
+    return pixelColours
+
+
+def _average_colour(colours):
+    """Find the average of a list of colours."""
+    bAverage = math.sqrt(sum(b**2 for b, _, _ in colours) / len(colours))
+    gAverage = math.sqrt(sum(g**2 for _, g, _ in colours) / len(colours))
+    rAverage = math.sqrt(sum(r**2 for _, _, r in colours) / len(colours))
+
+    return (bAverage, gAverage, rAverage)
+
+
+def _square_colours(image, centrePoints, offset=20):
+    """Finds colour of each square using square around its centre point."""
+    squareColours = tuple(
+        _average_colour(_colours_around_centre(image, centrePoint, offset))
+        for centrePoint in centrePoints
+    )
+
+    return squareColours
+
+
+def _colour_similarity(colour1, colour2):
+    """Returns the similarity between the colours from 0 (none) to 100 (the
+    same).
+    """
+    b1, g1, r1 = colour1
+    b2, g2, r2 = colour2
+
+    diffBlue = abs(b1 - b2)
+    diffGreen = abs(g1 - g2)
+    diffRed = abs(r1 - r2)
+
+    difference = (diffBlue + diffGreen + diffRed) / 3 / 255 * 100
+    similarity = 100 - difference
+
+    return similarity
+
+
+def _to_rubiks_colour(colour):
+    """Returns the nearest rubiks cube colour to the given colour."""
+    rubiksColours = [
+        ("white", (255., 255., 255.)),
+        ("green", (72., 155., 0.)),
+        ("red", (52., 18., 183.)),
+        ("blue", (173., 70., 0.)),
+        ("orange", (0., 88., 255.)),
+        ("yellow", (0., 213., 255.))
+    ]
+
+    similarities = [
+        (rubiksColourName, _colour_similarity(colour, rubiksColour))
+        for (rubiksColourName, rubiksColour) in rubiksColours
+    ]
+
+    similarities.sort(key=lambda similarity: similarity[1], reverse=True)
+
+    return similarities[0][0]
