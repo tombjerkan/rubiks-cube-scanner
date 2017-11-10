@@ -41,6 +41,9 @@ def scan_cube(
         combinedLinesImage = _draw_lines(cubeImage, combinedLines)
         cv2.imwrite(combinedLinesImageFile, combinedLinesImage)
 
+    if len(combinedLines) != 8:
+        return None
+
     centreLines = _find_centre_lines(combinedLines)
     if centreLinesImageFile is not None:
         centreLinesImage = _draw_lines(cubeImage, [
