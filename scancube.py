@@ -51,6 +51,9 @@ def scan_cube(
         ])
         cv2.imwrite(centreLinesImageFile, centreLinesImage)
 
+    if centreLines is None:
+        return None
+
     centrePoints = _find_centres(centreLines)
     if centrePointsImageFile is not None:
         centrePointsImage = _draw_points(cubeImage, centrePoints)
@@ -185,9 +188,16 @@ def _identify_vertical_lines(lines):
 def _find_centre_lines(lines):
     """Finds the lines passing through the centre of each square"""
     # Number identifies position from 1 to 4 in top to bottom ordering
-    hor1, hor2, hor3, hor4 = _identify_horizontal_lines(lines)
+    horizontalLines = _identify_horizontal_lines(lines)
+    if len(horizontalLines) != 4:
+        return None
+    hor1, hor2, hor3, hor4 = horizontalLines
+
     # Number identifies position from 1 to 4 in left to right ordering
-    vert1, vert2, vert3, vert4 = _identify_vertical_lines(lines)
+    verticalLines = _identify_vertical_lines(lines)
+    if len(verticalLines) != 4:
+        return None
+    vert1, vert2, vert3, vert4 = verticalLines
 
     topCentreHorizontal = _average_line([hor1, hor2])
     middleCentreHorizontal = _average_line([hor2, hor3])
