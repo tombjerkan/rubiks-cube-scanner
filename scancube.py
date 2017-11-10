@@ -53,8 +53,9 @@ def scan_cube(
         cv2.imwrite(centrePointsImageFile, centrePointsImage)
 
     squareColours = _square_colours(cubeImage, centrePoints)
+    rubiksColours = [_to_rubiks_colour(colour) for colour in squareColours]
 
-    return squareColours
+    return rubiksColours
 
 
 def _detect_edges(image):
@@ -285,3 +286,41 @@ def _square_colours(image, centrePoints, offset=20):
     )
 
     return squareColours
+
+
+def _colour_similarity(colour1, colour2):
+    """Returns the similarity between the colours from 0 (none) to 100 (the
+    same).
+    """
+    b1, g1, r1 = colour1
+    b2, g2, r2 = colour2
+
+    diffBlue = abs(b1 - b2)
+    diffGreen = abs(g1 - g2)
+    diffRed = abs(r1 - r2)
+
+    difference = (diffBlue + diffGreen + diffRed) / 3 / 255 * 100
+    similarity = 100 - difference
+
+    return similarity
+
+
+def _to_rubiks_colour(colour):
+    """Returns the nearest rubiks cube colour to the given colour."""
+    rubiksColours = [
+        ("white", (255., 255., 255.)),
+        ("green", (72., 155., 0.)),
+        ("red", (52., 18., 183.)),
+        ("blue", (173., 70., 0.)),
+        ("orange", (0., 88., 255.)),
+        ("yellow", (0., 213., 255.))
+    ]
+
+    similarities = [
+        (rubiksColourName, _colour_similarity(colour, rubiksColour))
+        for (rubiksColourName, rubiksColour) in rubiksColours
+    ]
+
+    similarities.sort(key=lambda similarity: similarity[1], reverse=True)
+
+    return similarities[0][0]
