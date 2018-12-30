@@ -373,4 +373,13 @@ if __name__ == '__main__':
         centrePointsImageFile=args.cpoints
     )
 
-    print(colours)
+    if colours is not None:
+        print('+--------+--------+--------+')
+        print(f'|{colours[0]:^8}|{colours[1]:^8}|{colours[2]:^8}|')
+        print('+--------+--------+--------+')
+        print(f'|{colours[3]:^8}|{colours[4]:^8}|{colours[5]:^8}|')
+        print('+--------+--------+--------+')
+        print(f'|{colours[6]:^8}|{colours[7]:^8}|{colours[8]:^8}|')
+        print('+--------+--------+--------+')
+    else:
+        print('Scan failed')
