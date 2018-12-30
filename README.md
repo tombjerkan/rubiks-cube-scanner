@@ -17,7 +17,15 @@ pipenv install
 
 ## Usage
 
-...
+```
+pipenv run python scancube ./cube.png
+```
+
+See the script's help documentation for details on arguments:
+
+```
+pipenv run python scancube --help
+```
 
 ## Code Style
 
