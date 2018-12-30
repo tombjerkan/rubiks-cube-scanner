@@ -1,32 +1,9 @@
 #!/usr/bin/env python3
 
-import argparse
+from collections import namedtuple
 import cv2
 import numpy as np
 import math
-import enum
-from collections import namedtuple
-
-
-def parse_arguments():
-    parser = argparse.ArgumentParser(
-        description='Scan colours from image of Rubik\'s Cube face'
-    )
-    parser.add_argument('image', help='Image file to scan')
-    parser.add_argument('--edges', help='File to save edges image to')
-    parser.add_argument('--lines', help='File to save lines image to')
-    parser.add_argument(
-        '--orth',
-        help='File to save orthogonal lines image to'
-    )
-    parser.add_argument('--comb', help='File to save combined lines image to')
-    parser.add_argument('--clines', help='File to save centre lines image to')
-    parser.add_argument(
-        '--cpoints',
-        help='File to save centre points image to'
-    )
-
-    return parser.parse_args()
 
 
 IntermediateImageSet = namedtuple(
@@ -36,7 +13,7 @@ IntermediateImageSet = namedtuple(
 )
 
 
-def scan_cube(cubeImage):
+def scan(cubeImage):
     """Scan the given cube image and return the colours of the cube face.
 
     Returns tuple (colours, intermediate images) where colours is a tuple
@@ -348,33 +325,3 @@ def _to_rubiks_colour(colour):
     similarities.sort(key=lambda similarity: similarity[1], reverse=True)
 
     return similarities[0][0]
-
-
-if __name__ == '__main__':
-    args = parse_arguments()
-
-    colours, intermediate_images = scan_cube(cv2.imread(args.image))
-
-    if colours is not None:
-        print('+--------+--------+--------+')
-        print(f'|{colours[0]:^8}|{colours[1]:^8}|{colours[2]:^8}|')
-        print('+--------+--------+--------+')
-        print(f'|{colours[3]:^8}|{colours[4]:^8}|{colours[5]:^8}|')
-        print('+--------+--------+--------+')
-        print(f'|{colours[6]:^8}|{colours[7]:^8}|{colours[8]:^8}|')
-        print('+--------+--------+--------+')
-    else:
-        print('Scan failed')
-
-    if args.edges is not None:
-        cv2.imwrite(args.edges, intermediate_images.edges)
-    if args.lines is not None:
-        cv2.imwrite(args.lines, intermediate_images.lines)
-    if args.orth is not None:
-        cv2.imwrite(args.orth, intermediate_images.orthogonalLines)
-    if args.comb is not None:
-        cv2.imwrite(args.comb, intermediate_images.combinedLines)
-    if args.clines is not None:
-        cv2.imwrite(args.clines, intermediate_images.centreLines)
-    if args.cpoints is not None:
-        cv2.imwrite(args.cpoints, intermediate_images.centrePoints)
