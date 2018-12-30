@@ -5,6 +5,7 @@ import cv2
 import numpy as np
 import math
 import enum
+from collections import namedtuple
 
 
 def parse_arguments():
@@ -26,6 +27,13 @@ def parse_arguments():
     )
 
     return parser.parse_args()
+
+
+IntermediateImageSet = namedtuple(
+    "IntermediateImageSet",
+    ["edges", "lines", "orthogonalLines", "combinedLines", "centreLines",
+     "centrePoints"]
+)
 
 
 def scan_cube(cubeImage):
@@ -52,17 +60,17 @@ def scan_cube(cubeImage):
     squareColours = _square_colours(cubeImage, centrePoints)
     rubiksColours = [_to_rubiks_colour(colour) for colour in squareColours]
 
-    intermediate_images = {
-        'edge': edgeImage,
-        'lines': _draw_lines(cubeImage, lines),
-        'orthogonalLines': _draw_lines(cubeImage, orthogonalLines),
-        'combinedLines': _draw_lines(cubeImage, combinedLines),
-        'centreLines': _draw_lines(
+    intermediate_images = IntermediateImageSet(
+        edges=edgeImage,
+        lines=_draw_lines(cubeImage, lines),
+        orthogonalLines=_draw_lines(cubeImage, orthogonalLines),
+        combinedLines=_draw_lines(cubeImage, combinedLines),
+        centreLines=_draw_lines(
             cubeImage,
             (line for centreLineGroup in centreLines for line in centreLineGroup)
         ),
-        'centrePoints': _draw_points(cubeImage, centrePoints)
-    }
+        centrePoints=_draw_points(cubeImage, centrePoints)
+    )
 
     return rubiksColours, intermediate_images
 
@@ -359,14 +367,14 @@ if __name__ == '__main__':
         print('Scan failed')
 
     if args.edges is not None:
-        cv2.imwrite(args.edges, intermediate_images['edge'])
+        cv2.imwrite(args.edges, intermediate_images.edges)
     if args.lines is not None:
-        cv2.imwrite(args.lines, intermediate_images['lines'])
+        cv2.imwrite(args.lines, intermediate_images.lines)
     if args.orth is not None:
-        cv2.imwrite(args.orth, intermediate_images['orthogonalLines'])
+        cv2.imwrite(args.orth, intermediate_images.orthogonalLines)
     if args.comb is not None:
-        cv2.imwrite(args.comb, intermediate_images['combinedLines'])
+        cv2.imwrite(args.comb, intermediate_images.combinedLines)
     if args.clines is not None:
-        cv2.imwrite(args.clines, intermediate_images['centreLines'])
+        cv2.imwrite(args.clines, intermediate_images.centreLines)
     if args.cpoints is not None:
-        cv2.imwrite(args.cpoints, intermediate_images['centrePoints'])
+        cv2.imwrite(args.cpoints, intermediate_images.centrePoints)
