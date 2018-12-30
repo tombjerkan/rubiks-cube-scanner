@@ -7,65 +7,64 @@ import math
 import enum
 
 
-def scan_cube(
-        cubeImage,
-        edgeImageFile=None,
-        linesImageFile=None,
-        orthogonalLinesImageFile=None,
-        combinedLinesImageFile=None,
-        centreLinesImageFile=None,
-        centrePointsImageFile=None):
+def parse_arguments():
+    parser = argparse.ArgumentParser(
+        description='Scan colours from image of Rubik\'s Cube face'
+    )
+    parser.add_argument('image', help='Image file to scan')
+    parser.add_argument('--edges', help='File to save edges image to')
+    parser.add_argument('--lines', help='File to save lines image to')
+    parser.add_argument(
+        '--orth',
+        help='File to save orthogonal lines image to'
+    )
+    parser.add_argument('--comb', help='File to save combined lines image to')
+    parser.add_argument('--clines', help='File to save centre lines image to')
+    parser.add_argument(
+        '--cpoints',
+        help='File to save centre points image to'
+    )
+
+    return parser.parse_args()
+
+
+def scan_cube(cubeImage):
     """Scan the given cube image and return the colours of the cube face.
 
-    Returns None if cube face could not be scanned.
-    Saves the intermediate edge image generated to the filename given.
-    Saves the intermediate lines image generated to the filename given.
-    Saves the intermediate orthogonal lines image generated to the filename
-    given.
-    Saves the intermediate combined lines image generated to the filename
-    given.
+    Returns tuple (colours, intermediate images) where colours is a tuple
+    of scanned colours and intermediate images are images generated through
+    the scanning process to be used for debugging.
     """
     edgeImage = _detect_edges(cubeImage)
-    if edgeImageFile is not None:
-        cv2.imwrite(edgeImageFile, edgeImage)
-
     lines = _detect_lines(edgeImage)
-    if linesImageFile is not None:
-        linesImage = _draw_lines(cubeImage, lines)
-        cv2.imwrite(linesImageFile, linesImage)
-
     orthogonalLines = _horizontal_and_vertical_lines(lines)
-    if orthogonalLinesImageFile is not None:
-        orthogonalLinesImage = _draw_lines(cubeImage, orthogonalLines)
-        cv2.imwrite(orthogonalLinesImageFile, orthogonalLinesImage)
 
     combinedLines = _combine_lines(orthogonalLines)
-    if combinedLinesImageFile is not None:
-        combinedLinesImage = _draw_lines(cubeImage, combinedLines)
-        cv2.imwrite(combinedLinesImageFile, combinedLinesImage)
-
     if len(combinedLines) != 8:
         return None
 
     centreLines = _find_centre_lines(combinedLines)
-    if centreLinesImageFile is not None:
-        centreLinesImage = _draw_lines(cubeImage, [
-            line for centreLineGroup in centreLines for line in centreLineGroup
-        ])
-        cv2.imwrite(centreLinesImageFile, centreLinesImage)
-
     if centreLines is None:
         return None
 
     centrePoints = _find_centres(centreLines)
-    if centrePointsImageFile is not None:
-        centrePointsImage = _draw_points(cubeImage, centrePoints)
-        cv2.imwrite(centrePointsImageFile, centrePointsImage)
 
     squareColours = _square_colours(cubeImage, centrePoints)
     rubiksColours = [_to_rubiks_colour(colour) for colour in squareColours]
 
-    return rubiksColours
+    intermediate_images = {
+        'edge': edgeImage,
+        'lines': _draw_lines(cubeImage, lines),
+        'orthogonalLines': _draw_lines(cubeImage, orthogonalLines),
+        'combinedLines': _draw_lines(cubeImage, combinedLines),
+        'centreLines': _draw_lines(
+            cubeImage,
+            (line for centreLineGroup in centreLines for line in centreLineGroup)
+        ),
+        'centrePoints': _draw_points(cubeImage, centrePoints)
+    }
+
+    return rubiksColours, intermediate_images
 
 
 def _detect_edges(image):
@@ -344,34 +343,9 @@ def _to_rubiks_colour(colour):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(
-        description='Scan colours from image of Rubik\'s Cube face'
-    )
-    parser.add_argument('image', help='Image file to scan')
-    parser.add_argument('--edges', help='File to save edges image to')
-    parser.add_argument('--lines', help='File to save lines image to')
-    parser.add_argument(
-        '--orth',
-        help='File to save orthogonal lines image to'
-    )
-    parser.add_argument('--comb', help='File to save combined lines image to')
-    parser.add_argument('--clines', help='File to save centre lines image to')
-    parser.add_argument(
-        '--cpoints',
-        help='File to save centre points image to'
-    )
+    args = parse_arguments()
 
-    args = parser.parse_args()
-
-    colours = scan_cube(
-        cv2.imread(args.image),
-        edgeImageFile=args.edges,
-        linesImageFile=args.lines,
-        orthogonalLinesImageFile=args.orth,
-        combinedLinesImageFile=args.comb,
-        centreLinesImageFile=args.clines,
-        centrePointsImageFile=args.cpoints
-    )
+    colours, intermediate_images = scan_cube(cv2.imread(args.image))
 
     if colours is not None:
         print('+--------+--------+--------+')
@@ -383,3 +357,16 @@ if __name__ == '__main__':
         print('+--------+--------+--------+')
     else:
         print('Scan failed')
+
+    if args.edges is not None:
+        cv2.imwrite(args.edges, intermediate_images['edge'])
+    if args.lines is not None:
+        cv2.imwrite(args.lines, intermediate_images['lines'])
+    if args.orth is not None:
+        cv2.imwrite(args.orth, intermediate_images['orthogonalLines'])
+    if args.comb is not None:
+        cv2.imwrite(args.comb, intermediate_images['combinedLines'])
+    if args.clines is not None:
+        cv2.imwrite(args.clines, intermediate_images['centreLines'])
+    if args.cpoints is not None:
+        cv2.imwrite(args.cpoints, intermediate_images['centrePoints'])
