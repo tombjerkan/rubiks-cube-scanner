@@ -353,14 +353,22 @@ def _to_rubiks_colour(colour):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Scan colours from image of Rubik\'s Cube face')
+    parser = argparse.ArgumentParser(
+        description='Scan colours from image of Rubik\'s Cube face'
+    )
     parser.add_argument('image', help='Image file to scan')
     parser.add_argument('--edges', help='File to save edges image to')
     parser.add_argument('--lines', help='File to save lines image to')
-    parser.add_argument('--orth', help='File to save orthogonal lines image to')
+    parser.add_argument(
+        '--orth',
+        help='File to save orthogonal lines image to'
+    )
     parser.add_argument('--comb', help='File to save combined lines image to')
     parser.add_argument('--clines', help='File to save centre lines image to')
-    parser.add_argument('--cpoints', help='File to save centre points image to')
+    parser.add_argument(
+        '--cpoints',
+        help='File to save centre points image to'
+    )
 
     args = parser.parse_args()
 
