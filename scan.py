@@ -8,62 +8,62 @@ import math
 
 IntermediateImageSet = namedtuple(
     "IntermediateImageSet",
-    ["edges", "lines", "orthogonalLines", "combinedLines", "centreLines",
-     "centrePoints"]
+    ["edges", "lines", "orthogonal_lines", "combined_lines", "centre_lines",
+     "centre_points"]
 )
 
 
-def scan(cubeImage):
+def scan(cube_image):
     """Scan the given cube image and return the colours of the cube face.
 
     Returns tuple (colours, intermediate images) where colours is a tuple
     of scanned colours and intermediate images are images generated through
     the scanning process to be used for debugging.
     """
-    edgeImage = _detect_edges(cubeImage)
-    lines = _detect_lines(edgeImage)
-    orthogonalLines = _horizontal_and_vertical_lines(lines)
+    edge_image = _detect_edges(cube_image)
+    lines = _detect_lines(edge_image)
+    orthogonal_lines = _horizontal_and_vertical_lines(lines)
 
-    combinedLines = _combine_lines(orthogonalLines)
-    if len(combinedLines) != 8:
+    combined_lines = _combine_lines(orthogonal_lines)
+    if len(combined_lines) != 8:
         return None
 
-    centreLines = _find_centre_lines(combinedLines)
-    if centreLines is None:
+    centre_lines = _find_centre_lines(combined_lines)
+    if centre_lines is None:
         return None
 
-    centrePoints = _find_centres(centreLines)
+    centre_points = _find_centres(centre_lines)
 
-    squareColours = _square_colours(cubeImage, centrePoints)
-    rubiksColours = [_to_rubiks_colour(colour) for colour in squareColours]
+    square_colours = _square_colours(cube_image, centre_points)
+    rubiks_colours = [_to_rubiks_colour(colour) for colour in square_colours]
 
     intermediate_images = IntermediateImageSet(
-        edges=edgeImage,
-        lines=_draw_lines(cubeImage, lines),
-        orthogonalLines=_draw_lines(cubeImage, orthogonalLines),
-        combinedLines=_draw_lines(cubeImage, combinedLines),
-        centreLines=_draw_lines(
-            cubeImage,
-            (line for centreLineGroup in centreLines for line in centreLineGroup)
+        edges=edge_image,
+        lines=_draw_lines(cube_image, lines),
+        orthogonal_lines=_draw_lines(cube_image, orthogonal_lines),
+        combined_lines=_draw_lines(cube_image, combined_lines),
+        centre_lines=_draw_lines(
+            cube_image,
+            (line for line_group in centre_lines for line in line_group)
         ),
-        centrePoints=_draw_points(cubeImage, centrePoints)
+        centre_points=_draw_points(cube_image, centre_points)
     )
 
-    return rubiksColours, intermediate_images
+    return rubiks_colours, intermediate_images
 
 
 def _detect_edges(image):
     """Detects edges in the given image using Canny edge detection."""
-    grayImage = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    blurredGrayImage = cv2.GaussianBlur(grayImage, (5, 5), 0)
-    edgeImage = cv2.Canny(blurredGrayImage, 0, 50)
+    gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    blurred_gray_image = cv2.GaussianBlur(gray_image, (5, 5), 0)
+    edge_image = cv2.Canny(blurred_gray_image, 0, 50)
 
-    return edgeImage
+    return edge_image
 
 
-def _detect_lines(edgeImage, threshold=125):
+def _detect_lines(edge_image, threshold=125):
     """Detects lines in the given edge image using the Hough transform."""
-    lines = cv2.HoughLines(edgeImage, 1, np.pi/180, threshold)
+    lines = cv2.HoughLines(edge_image, 1, np.pi/180, threshold)
     # Change line representation from [(rho, theta)] to just (rho, theta)
     lines = [line[0] for line in lines]
 
@@ -80,7 +80,7 @@ def _detect_lines(edgeImage, threshold=125):
 
 def _draw_lines(image, lines):
     """Returns a copy of the image with the given lines drawn on."""
-    imageCopy = image.copy()
+    image_copy = image.copy()
 
     for rho, theta in lines:
         a = np.cos(theta)
@@ -92,9 +92,9 @@ def _draw_lines(image, lines):
         x2 = int(x0 - 1000*(-b))
         y2 = int(y0 - 1000*a)
 
-        cv2.line(imageCopy, (x1, y1), (x2, y2), (0, 0, 255), 2)
+        cv2.line(image_copy, (x1, y1), (x2, y2), (0, 0, 255), 2)
 
-    return imageCopy
+    return image_copy
 
 
 def _is_horizontal(line):
@@ -117,15 +117,15 @@ def _horizontal_and_vertical_lines(lines):
     ]
 
 
-def _similar(line1, line2, rhoThreshold=50, thetaThreshold=np.pi/18):
+def _similar(line_1, line_2, rho_threshold=50, theta_threshold=np.pi/18):
     """Returns True if the two lines are similar enough, False otherwise."""
-    rho1, theta1 = line1
-    rho2, theta2 = line2
+    rho_1, theta_1 = line_1
+    rho_2, theta_2 = line_2
 
-    if abs(rho1 - rho2) > rhoThreshold:
+    if abs(rho_1 - rho_2) > rho_threshold:
         return False
 
-    if abs(theta1 - theta2) > thetaThreshold:
+    if abs(theta_1 - theta_2) > theta_threshold:
         return False
 
     return True
@@ -133,174 +133,174 @@ def _similar(line1, line2, rhoThreshold=50, thetaThreshold=np.pi/18):
 
 def _average_line(lines):
     """Combines a group of lines and returns their average."""
-    averageRho = sum(rho for rho, _ in lines) / len(lines)
-    averageTheta = sum(theta for _, theta in lines) / len(lines)
-    return averageRho, averageTheta
+    average_rho = sum(rho for rho, _ in lines) / len(lines)
+    average_theta = sum(theta for _, theta in lines) / len(lines)
+    return average_rho, average_theta
 
 
 def _combine_lines(lines):
     """Combines lines that are similar to one another."""
-    similarLineGroups = [
+    similar_line_groups = [
         # Convert to tuple to be hashable for set below
-        tuple([line for line in lines if _similar(line, originalLine)])
-        for originalLine in lines
+        tuple([line for line in lines if _similar(line, original_line)])
+        for original_line in lines
     ]
 
-    uniqueSimilarLineGroups = set(similarLineGroups)
+    unique_similar_line_groups = set(similar_line_groups)
 
-    combinedLines = {
-        _average_line(similarLines)
-        for similarLines in uniqueSimilarLineGroups
+    combined_lines = {
+        _average_line(similar_lines)
+        for similar_lines in unique_similar_line_groups
     }
 
-    return combinedLines
+    return combined_lines
 
 
 def _identify_horizontal_lines(lines):
     """Identifies the horizontal lines and returns them from top to bottom."""
-    horizontalLines = [line for line in lines if _is_horizontal(line)]
+    horizontal_lines = [line for line in lines if _is_horizontal(line)]
     # Rho shows how far away from origin therefore position in top to bottom
-    horizontalLines.sort(key=lambda line: line[0])
-    return tuple(horizontalLines)
+    horizontal_lines.sort(key=lambda line: line[0])
+    return tuple(horizontal_lines)
 
 
 def _identify_vertical_lines(lines):
     """Identifies the vertical lines and returns them from left to right."""
-    verticalLines = [line for line in lines if _is_vertical(line)]
+    vertical_lines = [line for line in lines if _is_vertical(line)]
     # Rho shows how far away from origin therefore position in left to right
-    verticalLines.sort(key=lambda line: line[0])
-    return tuple(verticalLines)
+    vertical_lines.sort(key=lambda line: line[0])
+    return tuple(vertical_lines)
 
 
 def _find_centre_lines(lines):
     """Finds the lines passing through the centre of each square"""
     # Number identifies position from 1 to 4 in top to bottom ordering
-    horizontalLines = _identify_horizontal_lines(lines)
-    if len(horizontalLines) != 4:
+    horizontal_lines = _identify_horizontal_lines(lines)
+    if len(horizontal_lines) != 4:
         return None
-    hor1, hor2, hor3, hor4 = horizontalLines
+    hor_1, hor_2, hor_3, hor_4 = horizontal_lines
 
     # Number identifies position from 1 to 4 in left to right ordering
-    verticalLines = _identify_vertical_lines(lines)
-    if len(verticalLines) != 4:
+    vertical_lines = _identify_vertical_lines(lines)
+    if len(vertical_lines) != 4:
         return None
-    vert1, vert2, vert3, vert4 = verticalLines
+    vert_1, vert_2, vert_3, vert_4 = vertical_lines
 
-    topCentreHorizontal = _average_line([hor1, hor2])
-    middleCentreHorizontal = _average_line([hor2, hor3])
-    bottomCentreHorizontal = _average_line([hor3, hor4])
+    top_horizontal = _average_line([hor_1, hor_2])
+    middle_horizontal = _average_line([hor_2, hor_3])
+    bottom_horizontal = _average_line([hor_3, hor_4])
 
-    leftCentreVertical = _average_line([vert1, vert2])
-    middleCentreVertical = _average_line([vert2, vert3])
-    rightCentreVertical = _average_line([vert3, vert4])
+    left_vertical = _average_line([vert_1, vert_2])
+    middle_vertical = _average_line([vert_2, vert_3])
+    right_vertical = _average_line([vert_3, vert_4])
 
-    return (
-        (topCentreHorizontal, middleCentreHorizontal, bottomCentreHorizontal),
-        (leftCentreVertical, middleCentreVertical, rightCentreVertical)
-    )
+    centre_horizontals = (top_horizontal, middle_horizontal, bottom_horizontal)
+    centre_verticals = (left_vertical, middle_vertical, right_vertical)
+
+    return (centre_horizontals, centre_verticals)
 
 
-def _intersection(line1, line2):
+def _intersection(line_1, line_2):
     """Finds the (x, y) point where two lines intersect."""
-    rho1, theta1 = line1
-    rho2, theta2 = line2
+    rho_1, theta_1 = line_1
+    rho_2, theta_2 = line_2
 
-    cosTheta1 = math.cos(theta1)
-    sinTheta1 = math.sin(theta1)
-    cosTheta2 = math.cos(theta2)
-    sinTheta2 = math.sin(theta2)
+    cos_theta_1 = math.cos(theta_1)
+    sin_theta_1 = math.sin(theta_1)
+    cos_theta_2 = math.cos(theta_2)
+    sin_theta_2 = math.sin(theta_2)
 
-    det = cosTheta1*sinTheta2 - sinTheta1*cosTheta2
+    det = cos_theta_1*sin_theta_2 - sin_theta_1*cos_theta_2
 
     # det is None when lines are parallel
     if det is None:
         return None
 
-    x = (sinTheta2*rho1 - sinTheta1*rho2) / det
-    y = (cosTheta1*rho2 - cosTheta2*rho1) / det
+    x = (sin_theta_2*rho_1 - sin_theta_1*rho_2) / det
+    y = (cos_theta_1*rho_2 - cos_theta_2*rho_1) / det
 
     return (x, y)
 
 
-def _find_centres(centreLines):
-    horizontalLines, verticalLines = centreLines
+def _find_centres(centre_lines):
+    horizontal_lines, vertical_lines = centre_lines
 
-    topLeftCentre = _intersection(horizontalLines[0], verticalLines[0])
-    topMiddleCentre = _intersection(horizontalLines[0], verticalLines[1])
-    topRightCentre = _intersection(horizontalLines[0], verticalLines[2])
+    top_left = _intersection(horizontal_lines[0], vertical_lines[0])
+    top_middle = _intersection(horizontal_lines[0], vertical_lines[1])
+    top_right = _intersection(horizontal_lines[0], vertical_lines[2])
 
-    middleLeftCentre = _intersection(horizontalLines[1], verticalLines[0])
-    middleCentre = _intersection(horizontalLines[1], verticalLines[1])
-    middleRightCentre = _intersection(horizontalLines[1], verticalLines[2])
+    middle_left = _intersection(horizontal_lines[1], vertical_lines[0])
+    middle = _intersection(horizontal_lines[1], vertical_lines[1])
+    middle_right = _intersection(horizontal_lines[1], vertical_lines[2])
 
-    bottomLeftCentre = _intersection(horizontalLines[2], verticalLines[0])
-    bottomMiddleCentre = _intersection(horizontalLines[2], verticalLines[1])
-    bottomRightCentre = _intersection(horizontalLines[2], verticalLines[2])
+    bottom_left = _intersection(horizontal_lines[2], vertical_lines[0])
+    bottom_middle = _intersection(horizontal_lines[2], vertical_lines[1])
+    bottom_right = _intersection(horizontal_lines[2], vertical_lines[2])
 
     return (
-        topLeftCentre, topMiddleCentre, topRightCentre,
-        middleLeftCentre, middleCentre, middleRightCentre,
-        bottomLeftCentre, bottomMiddleCentre, bottomRightCentre
+        top_left, top_middle, top_right,
+        middle_left, middle, middle_right,
+        bottom_left, bottom_middle, bottom_right
     )
 
 
 def _draw_points(image, points):
     """Returns a copy of the image with the given points drawn on."""
-    imageCopy = image.copy()
+    image_copy = image.copy()
     for x, y in points:
-        cv2.circle(imageCopy, (int(x), int(y)), 3, (255, 0, 255), -1)
+        cv2.circle(image_copy, (int(x), int(y)), 3, (255, 0, 255), -1)
 
-    return imageCopy
+    return image_copy
 
 
-def _colours_around_centre(image, centrePoint, offset):
+def _colours_around_centre(image, centre_point, offset):
     """Returns a list of colours in a square around a centre point"""
-    centreX, centreY = centrePoint
-    leftX = int(centreX) - offset
-    rightX = int(centreX) + offset
-    topY = int(centreY) - offset
-    bottomY = int(centreY) + offset
+    centre_x, centre_y = centre_point
+    left_x = int(centre_x) - offset
+    right_x = int(centre_x) + offset
+    top_y = int(centre_y) - offset
+    bottom_y = int(centre_y) + offset
 
-    pixelColours = [
+    pixel_colours = [
         image[y][x]
-        for x in range(leftX, rightX + 1)
-        for y in range(topY, bottomY + 1)
+        for x in range(left_x, right_x + 1)
+        for y in range(top_y, bottom_y + 1)
     ]
 
-    return pixelColours
+    return pixel_colours
 
 
 def _average_colour(colours):
     """Find the average of a list of colours."""
-    bAverage = math.sqrt(sum(b**2 for b, _, _ in colours) / len(colours))
-    gAverage = math.sqrt(sum(g**2 for _, g, _ in colours) / len(colours))
-    rAverage = math.sqrt(sum(r**2 for _, _, r in colours) / len(colours))
+    b_average = math.sqrt(sum(b**2 for b, _, _ in colours) / len(colours))
+    g_average = math.sqrt(sum(g**2 for _, g, _ in colours) / len(colours))
+    r_average = math.sqrt(sum(r**2 for _, _, r in colours) / len(colours))
 
-    return (bAverage, gAverage, rAverage)
+    return (b_average, g_average, r_average)
 
 
-def _square_colours(image, centrePoints, offset=20):
+def _square_colours(image, centre_points, offset=20):
     """Finds colour of each square using square around its centre point."""
-    squareColours = tuple(
-        _average_colour(_colours_around_centre(image, centrePoint, offset))
-        for centrePoint in centrePoints
+    square_colours = tuple(
+        _average_colour(_colours_around_centre(image, centre_point, offset))
+        for centre_point in centre_points
     )
 
-    return squareColours
+    return square_colours
 
 
-def _colour_similarity(colour1, colour2):
+def _colour_similarity(colour_1, colour_2):
     """Returns the similarity between the colours from 0 (none) to 100 (the
     same).
     """
-    b1, g1, r1 = colour1
-    b2, g2, r2 = colour2
+    b_1, g_1, r_1 = colour_1
+    b_2, g_2, r_2 = colour_2
 
-    diffBlue = abs(b1 - b2)
-    diffGreen = abs(g1 - g2)
-    diffRed = abs(r1 - r2)
+    diff_blue = abs(b_1 - b_2)
+    diff_green = abs(g_1 - g_2)
+    diff_red = abs(r_1 - r_2)
 
-    difference = (diffBlue + diffGreen + diffRed) / 3 / 255 * 100
+    difference = (diff_blue + diff_green + diff_red) / 3 / 255 * 100
     similarity = 100 - difference
 
     return similarity
@@ -308,7 +308,7 @@ def _colour_similarity(colour1, colour2):
 
 def _to_rubiks_colour(colour):
     """Returns the nearest rubiks cube colour to the given colour."""
-    rubiksColours = [
+    rubiks_colours = [
         ('white', (255., 255., 255.)),
         ('green', (72., 155., 0.)),
         ('red', (52., 18., 183.)),
@@ -318,8 +318,8 @@ def _to_rubiks_colour(colour):
     ]
 
     similarities = [
-        (rubiksColourName, _colour_similarity(colour, rubiksColour))
-        for (rubiksColourName, rubiksColour) in rubiksColours
+        (rubiks_colour_name, _colour_similarity(colour, rubiks_colour))
+        for (rubiks_colour_name, rubiks_colour) in rubiks_colours
     ]
 
     similarities.sort(key=lambda similarity: similarity[1], reverse=True)

@@ -48,10 +48,10 @@ if __name__ == '__main__':
     if args.lines is not None:
         cv2.imwrite(args.lines, intermediate_images.lines)
     if args.orth is not None:
-        cv2.imwrite(args.orth, intermediate_images.orthogonalLines)
+        cv2.imwrite(args.orth, intermediate_images.orthogonal_lines)
     if args.comb is not None:
-        cv2.imwrite(args.comb, intermediate_images.combinedLines)
+        cv2.imwrite(args.comb, intermediate_images.combined_lines)
     if args.clines is not None:
-        cv2.imwrite(args.clines, intermediate_images.centreLines)
+        cv2.imwrite(args.clines, intermediate_images.centre_lines)
     if args.cpoints is not None:
-        cv2.imwrite(args.cpoints, intermediate_images.centrePoints)
+        cv2.imwrite(args.cpoints, intermediate_images.centre_points)
