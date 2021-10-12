@@ -1,35 +1,84 @@
 [[package]]
-category = "main"
-description = "NumPy is the fundamental package for array computing with Python."
 name = "numpy"
+version = "1.17.2"
+description = "NumPy is the fundamental package for array computing with Python."
+category = "main"
 optional = false
 python-versions = ">=3.5"
-version = "1.17.2"
 
 [[package]]
-category = "main"
-description = "Wrapper package for OpenCV python bindings."
 name = "opencv-python"
+version = "4.2.0.32"
+description = "Wrapper package for OpenCV python bindings."
+category = "main"
 optional = false
 python-versions = "*"
-version = "4.1.1.26"
 
 [package.dependencies]
 numpy = ">=1.11.1"
 
 [[package]]
-category = "dev"
-description = "Python style guide checker"
 name = "pycodestyle"
+version = "2.5.0"
+description = "Python style guide checker"
+category = "dev"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "2.5.0"
 
 [metadata]
-content-hash = "747f5f097616ad27717867644601d50baa8b69e80af950a5a92704aff894b986"
+lock-version = "1.1"
 python-versions = "^3.6"
+content-hash = "2ff12062c1e38666df996e8beddb1ca9e95f93b8205f812d01f54f3d51bf4595"
 
-[metadata.hashes]
-numpy = ["05dbfe72684cc14b92568de1bc1f41e5f62b00f714afc9adee42f6311738091f", "0d82cb7271a577529d07bbb05cb58675f2deb09772175fab96dc8de025d8ac05", "10132aa1fef99adc85a905d82e8497a580f83739837d7cbd234649f2e9b9dc58", "12322df2e21f033a60c80319c25011194cd2a21294cc66fee0908aeae2c27832", "16f19b3aa775dddc9814e02a46b8e6ae6a54ed8cf143962b4e53f0471dbd7b16", "3d0b0989dd2d066db006158de7220802899a1e5c8cf622abe2d0bd158fd01c2c", "438a3f0e7b681642898fd7993d38e2bf140a2d1eafaf3e89bb626db7f50db355", "5fd214f482ab53f2cea57414c5fb3e58895b17df6e6f5bca5be6a0bb6aea23bb", "73615d3edc84dd7c4aeb212fa3748fb83217e00d201875a47327f55363cef2df", "7bd355ad7496f4ce1d235e9814ec81ee3d28308d591c067ce92e49f745ba2c2f", "7d077f2976b8f3de08a0dcf5d72083f4af5411e8fddacd662aae27baa2601196", "a4092682778dc48093e8bda8d26ee8360153e2047826f95a3f5eae09f0ae3abf", "b458de8624c9f6034af492372eb2fee41a8e605f03f4732f43fc099e227858b2", "e70fc8ff03a961f13363c2c95ef8285e0cf6a720f8271836f852cc0fa64e97c8", "ee8e9d7cad5fe6dde50ede0d2e978d81eafeaa6233fb0b8719f60214cf226578", "f4a4f6aba148858a5a5d546a99280f71f5ee6ec8182a7d195af1a914195b21a2"]
-opencv-python = ["01505b131dc35f60e99a5da98b77156e37f872ae0ff5596e5e68d526bb572d3c", "0478a1037505ddde312806c960a5e8958d2cf7a2885e8f2f5dde74c4028e0b04", "17810b89f9ef8e8537e75332acf533e619e26ccadbf1b73f24bf338f2d327ddd", "19ad2ea9fb32946761b47b9d6eed51876a8329da127f27788263fecd66651ba0", "1a250edb739baf3e7c25d99a2ee252aac4f59a97e0bee39237eaa490fd0281d3", "3505468970448f66cd776cb9e179570c87988f94b5cf9bcbc4c2d88bd88bbdf1", "4e04a91da157885359f487534433340b2d709927559c80acf62c28167e59be02", "5a49cffcdec5e37217672579c3343565926d999642844efa9c6a031ed5f32318", "604b2ce3d4a86480ced0813da7fba269b4605ad9fea26cd2144d8077928d4b49", "61cbb8fa9565a0480c46028599431ad8f19181a7fac8070a700515fd54cd7377", "62d7c6e511c9454f099616315c695d02a584048e1affe034b39160db7a2ae34d", "6555272dd9efd412d17cdc1a4f4c2da5753c099d95d9ff01aca54bb9782fb5cf", "67d994c6b2b14cb9239e85dc7dfa6c08ef7cf6eb4def80c0af6141dfacc8cbb9", "68c9cbe538666c4667523821cc56caee49389bea06bae4c0fc2cd68bd264226a", "822ad8f628a9498f569c57d30865f5ef9ee17824cee0a1d456211f742028c135", "82d972429eb4fee22c1dc4204af2a2e981f010e5e4f66daea2a6c68381b79184", "9128924f5b58269ee221b8cf2d736f31bd3bb0391b92ee8504caadd68c8176a2", "9172cf8270572c494d8b2ae12ef87c0f6eed9d132927e614099f76843b0c91d7", "952bce4d30a8287b17721ddaad7f115dab268efee8576249ddfede80ec2ce404", "a8147718e70b1f170a3d26518e992160137365a4db0ed82a9efd3040f9f660d4", "bfdb636a3796ff223460ea0fcfda906b3b54f4bef22ae433a5b67e66fab00b25", "c9c3f27867153634e1083390920067008ebaaab78aeb09c4e0274e69746cb2c8", "d69be21973d450a4662ae6bd1b3df6b1af030e448d7276380b0d1adf7c8c2ae6", "db1479636812a6579a3753b72a6fefaa73190f32bf7b19e483f8bc750cebe1a5", "db8313d755962a7dd61e5c22a651e0743208adfdb255c6ec8904ce9cb02940c6", "e4625a6b032e7797958aeb630d6e3e91e3896d285020aae612e6d7b342d6dfea", "e8397a26966a1290836a52c34b362aabc65a422b9ffabcbbdec1862f023ccab8"]
-pycodestyle = ["95a2219d12372f05704562a14ec30bc76b05a5b297b21a5dfe3f6fac3491ae56", "e40a936c9a450ad81df37f549d676d127b1b66000a6c500caa2b085bc0ca976c"]
+[metadata.files]
+numpy = [
+    {file = "numpy-1.17.2-cp35-cp35m-macosx_10_6_intel.whl", hash = "sha256:3d0b0989dd2d066db006158de7220802899a1e5c8cf622abe2d0bd158fd01c2c"},
+    {file = "numpy-1.17.2-cp35-cp35m-manylinux1_i686.whl", hash = "sha256:7bd355ad7496f4ce1d235e9814ec81ee3d28308d591c067ce92e49f745ba2c2f"},
+    {file = "numpy-1.17.2-cp35-cp35m-manylinux1_x86_64.whl", hash = "sha256:7d077f2976b8f3de08a0dcf5d72083f4af5411e8fddacd662aae27baa2601196"},
+    {file = "numpy-1.17.2-cp35-cp35m-win32.whl", hash = "sha256:05dbfe72684cc14b92568de1bc1f41e5f62b00f714afc9adee42f6311738091f"},
+    {file = "numpy-1.17.2-cp35-cp35m-win_amd64.whl", hash = "sha256:f4a4f6aba148858a5a5d546a99280f71f5ee6ec8182a7d195af1a914195b21a2"},
+    {file = "numpy-1.17.2-cp36-cp36m-macosx_10_6_intel.whl", hash = "sha256:ee8e9d7cad5fe6dde50ede0d2e978d81eafeaa6233fb0b8719f60214cf226578"},
+    {file = "numpy-1.17.2-cp36-cp36m-manylinux1_i686.whl", hash = "sha256:438a3f0e7b681642898fd7993d38e2bf140a2d1eafaf3e89bb626db7f50db355"},
+    {file = "numpy-1.17.2-cp36-cp36m-manylinux1_x86_64.whl", hash = "sha256:b458de8624c9f6034af492372eb2fee41a8e605f03f4732f43fc099e227858b2"},
+    {file = "numpy-1.17.2-cp36-cp36m-win32.whl", hash = "sha256:0d82cb7271a577529d07bbb05cb58675f2deb09772175fab96dc8de025d8ac05"},
+    {file = "numpy-1.17.2-cp36-cp36m-win_amd64.whl", hash = "sha256:12322df2e21f033a60c80319c25011194cd2a21294cc66fee0908aeae2c27832"},
+    {file = "numpy-1.17.2-cp37-cp37m-macosx_10_6_intel.whl", hash = "sha256:e70fc8ff03a961f13363c2c95ef8285e0cf6a720f8271836f852cc0fa64e97c8"},
+    {file = "numpy-1.17.2-cp37-cp37m-manylinux1_i686.whl", hash = "sha256:a4092682778dc48093e8bda8d26ee8360153e2047826f95a3f5eae09f0ae3abf"},
+    {file = "numpy-1.17.2-cp37-cp37m-manylinux1_x86_64.whl", hash = "sha256:10132aa1fef99adc85a905d82e8497a580f83739837d7cbd234649f2e9b9dc58"},
+    {file = "numpy-1.17.2-cp37-cp37m-win32.whl", hash = "sha256:16f19b3aa775dddc9814e02a46b8e6ae6a54ed8cf143962b4e53f0471dbd7b16"},
+    {file = "numpy-1.17.2-cp37-cp37m-win_amd64.whl", hash = "sha256:5fd214f482ab53f2cea57414c5fb3e58895b17df6e6f5bca5be6a0bb6aea23bb"},
+    {file = "numpy-1.17.2.zip", hash = "sha256:73615d3edc84dd7c4aeb212fa3748fb83217e00d201875a47327f55363cef2df"},
+]
+opencv-python = [
+    {file = "opencv_python-4.2.0.32-cp27-cp27m-macosx_10_9_x86_64.whl", hash = "sha256:9cd9bd72f4a9743ef6f11f0f96784bd215a542e996db1717d4c2d3d03eb81a1b"},
+    {file = "opencv_python-4.2.0.32-cp27-cp27m-manylinux1_i686.whl", hash = "sha256:68c1c846dd267cd7e293d3fc0bb238db0a744aa1f2e721e327598f00cb982098"},
+    {file = "opencv_python-4.2.0.32-cp27-cp27m-manylinux1_x86_64.whl", hash = "sha256:a2b08aec2eacae868723136383d9eb84a33062a7a7ec5ec3bd2c423bd1355946"},
+    {file = "opencv_python-4.2.0.32-cp27-cp27m-win32.whl", hash = "sha256:afbc81a3870739610a9f9a1197374d6a45892cf1933c90fc5617d39790991ed3"},
+    {file = "opencv_python-4.2.0.32-cp27-cp27m-win_amd64.whl", hash = "sha256:e36a8857be2c849e54009f1bee25e8c34fbc683fcd38c6c700af4cba5f8d57c2"},
+    {file = "opencv_python-4.2.0.32-cp27-cp27mu-manylinux1_i686.whl", hash = "sha256:2baf1213ae2fd678991f905d7b2b94eddfdfb5f75757db0f0b31eebd48ca200d"},
+    {file = "opencv_python-4.2.0.32-cp27-cp27mu-manylinux1_x86_64.whl", hash = "sha256:db1d49b753e6e6c76585f21d09c7e9812176732baa9bddb64bc2fc6cd24d4179"},
+    {file = "opencv_python-4.2.0.32-cp35-cp35m-macosx_10_9_x86_64.whl", hash = "sha256:eae3da9231d87980f8082d181c276a04f7a6fdac130cebd467390b96dd05f944"},
+    {file = "opencv_python-4.2.0.32-cp35-cp35m-manylinux1_i686.whl", hash = "sha256:8c76983c9ec3e4cf3a4c1d172ec4285332d9fb1c7194d724aff0c518437471ee"},
+    {file = "opencv_python-4.2.0.32-cp35-cp35m-manylinux1_x86_64.whl", hash = "sha256:8002959146ed21959e3118c60c8e94ceac02eea15b691da6c62cff4787c63f7f"},
+    {file = "opencv_python-4.2.0.32-cp35-cp35m-win32.whl", hash = "sha256:a1a5517301dc8d56243a14253d231ec755b94486b4fff2ae68269bc941bb1f2e"},
+    {file = "opencv_python-4.2.0.32-cp35-cp35m-win_amd64.whl", hash = "sha256:889eef049d38488b5b4646c48a831feed37c0fd44f3d83c05cff80f4baded145"},
+    {file = "opencv_python-4.2.0.32-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:703910aaa1dcd25a412f78a190fb7a352d9a64ee7d9a35566d786f3cc66ebf20"},
+    {file = "opencv_python-4.2.0.32-cp36-cp36m-manylinux1_i686.whl", hash = "sha256:32384e675f7cefe707cac40a95eeb142d6869065e39c5500374116297cd8ca6d"},
+    {file = "opencv_python-4.2.0.32-cp36-cp36m-manylinux1_x86_64.whl", hash = "sha256:f01a87a015227d8af407161eb48222fc3c8b01661cdc841e2b86eee4f1a7a417"},
+    {file = "opencv_python-4.2.0.32-cp36-cp36m-win32.whl", hash = "sha256:e699232fd033ef0053efec2cba0a7505514f374ba7b18c732a77cb5304311ef9"},
+    {file = "opencv_python-4.2.0.32-cp36-cp36m-win_amd64.whl", hash = "sha256:a8529a79233f3581a66984acd16bce52ab0163f6f77568dd69e9ee4956d2e1db"},
+    {file = "opencv_python-4.2.0.32-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:312dda54c7e809c20d7409418060ae0e9cdbe82975e7ced429eb3c234ffc0d4a"},
+    {file = "opencv_python-4.2.0.32-cp37-cp37m-manylinux1_i686.whl", hash = "sha256:167a6aff9bd124a3a67e0ec25d0da5ecdc8d96a56405e3e5e7d586c4105eb1bb"},
+    {file = "opencv_python-4.2.0.32-cp37-cp37m-manylinux1_x86_64.whl", hash = "sha256:baeb5dd8b21c718580687f5b4efd03f8139b1c56239cdf6b9805c6946e80f268"},
+    {file = "opencv_python-4.2.0.32-cp37-cp37m-win32.whl", hash = "sha256:0f2e739c582e8c5e432130648bc6d66a56bc65f4cd9ff0bc7033033d2130c7a3"},
+    {file = "opencv_python-4.2.0.32-cp37-cp37m-win_amd64.whl", hash = "sha256:ee6814c94dbf1cae569302afef9dd29efafc52373e8770ded0db549a3b6e0c00"},
+    {file = "opencv_python-4.2.0.32-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:0f3d159ad6cb9cbd188c726f87485f0799a067a0a15f34c25d7b5c8db3cb2e50"},
+    {file = "opencv_python-4.2.0.32-cp38-cp38-manylinux1_i686.whl", hash = "sha256:6841bb9cc24751dbdf94e7eefc4e6d70ec297952501954471299fd12ab67391c"},
+    {file = "opencv_python-4.2.0.32-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:1b90d50bc7a31e9573a8da1b80fcd1e4d9c86c0e5f76387858e1b87eb8b0332b"},
+    {file = "opencv_python-4.2.0.32-cp38-cp38-win32.whl", hash = "sha256:e242ed419aeb2488e0f9ee6410a34917f0f8d62b3ae96aa3170d83bae75004e2"},
+    {file = "opencv_python-4.2.0.32-cp38-cp38-win_amd64.whl", hash = "sha256:5c50634dd8f2f866fd99fd939292ce10e52bef82804ebc4e7f915221c3b7e951"},
+]
+pycodestyle = [
+    {file = "pycodestyle-2.5.0-py2.py3-none-any.whl", hash = "sha256:95a2219d12372f05704562a14ec30bc76b05a5b297b21a5dfe3f6fac3491ae56"},
+    {file = "pycodestyle-2.5.0.tar.gz", hash = "sha256:e40a936c9a450ad81df37f549d676d127b1b66000a6c500caa2b085bc0ca976c"},
+]
